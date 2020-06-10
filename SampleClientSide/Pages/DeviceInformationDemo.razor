@@ -1,0 +1,31 @@
+﻿@page "/deviceinformationdemo"
+
+@using Blazm.Bluetooth
+@inject BluetoothNavigator navigator
+
+
+<h3>Device Information</h3>
+
+<button @onclick="Connect">Connect</button>
+
+@firmware
+@code {
+
+    string firmware = "";
+    protected async Task Connect()
+    {
+
+        var serviceid = "device_information";
+
+        var q = new RequestDeviceQuery();
+        //Filtering on Sensun scale service
+        q.Filters.Add(new Filter() { Services = { "0000ffb0-0000-1000-8000-00805f9b34fb" } });
+        q.OptionalServices.Add(serviceid);
+        var device = await navigator.RequestDeviceAsync(q);
+
+        var bytes = await navigator.ReadValueAsync(device.Id, serviceid, "firmware_revision_string");
+        firmware = System.Text.UTF8Encoding.UTF8.GetString(bytes);
+        StateHasChanged();
+
+    }
+}

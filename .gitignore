@@ -30,6 +30,9 @@ bld/
 [Oo]bj/
 [Ll]og/
 [Ll]ogs/
+[Ss]tart/
+[Ee]nd/
+[Ss]nippets/
 
 # Visual Studio 2015/2017 cache/options directory
 .vs/
@@ -348,3 +351,5 @@ MigrationBackup/
 
 # Ionide (cross platform F# VS Code tools) working folder
 .ionide/
+/Reset demos.ps1
+/Copy Snippets.ps1

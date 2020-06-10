@@ -1,0 +1,59 @@
+﻿@page "/AnderssonScaleDemo"
+@page "/"
+@*<1. AddNamespace>*@
+@using Blazm.Bluetooth
+@*</1. AddNamespace>*@
+@*<2. AddBluetoothNavigator>*@
+@inject BluetoothNavigator navigator
+@*</2. AddBluetoothNavigator>*@
+
+
+<h3>AnderssonScale</h3>
+@*<4. ShowWeight>*@
+@weight
+@*</4. ShowWeight>*@
+<button @onclick="Connect">Connect</button>
+
+@code {
+    @*<3. AddWeightVariable>*@
+    int weight = 0;
+    @*</3. AddWeightVariable>*@
+
+    protected async Task Connect()
+    {
+        @*<5. AddService>*@
+        var serviceid = "0000ffb0-0000-1000-8000-00805f9b34fb";
+        @*</5. AddService>*@
+        @*<6. AddCharacteristic>*@
+        var characteristics = "0000ffb2-0000-1000-8000-00805f9b34fb";
+        @*</6. AddCharacteristic>*@
+
+        @*<7. AddFilter>*@
+        var q = new RequestDeviceQuery();
+        q.Filters.Add(new Filter() { Services = { serviceid } });
+        @*</7. AddFilter>*@
+
+        @*<8. RequestDevice>*@
+        var device = await navigator.RequestDeviceAsync(q);
+        @*</8. RequestDevice>*@
+
+        @*<9. RequestDevice>*@
+        await navigator.SetupNotifyAsync(device.Id, serviceid, characteristics);
+        navigator.Notification += Value_Notification;
+        @*</9. RequestDevice>*@
+    }
+
+    @*<10. HandleNotification>*@
+    private void Value_Notification(object sender, CharacteristicEventArgs e)
+    {
+        var data = e.Value.ToArray();
+        weight = (256 * data[4]) + data[5];
+        if (data[7] == 1)
+        {
+            weight *= -1;
+        }
+
+        StateHasChanged();
+    }
+    @*</10. HandleNotification>*@
+}

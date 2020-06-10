@@ -1,0 +1,39 @@
+﻿@inject IJSRuntime jsruntime
+
+    
+
+    <div id="joyDiv" style="width:200px;height:200px;margin-bottom:20px;"></div>
+
+
+
+    @code{ 
+
+
+        protected async override Task OnAfterRenderAsync(bool firstRender)
+        {
+            await jsruntime.InvokeVoidAsync("blazmjoystick.init", "joycontainer");
+
+
+
+            System.Threading.Timer timer = new System.Threading.Timer(async (object state) =>
+            {
+                var pos = await jsruntime.InvokeAsync<JoyPosition>("blazmjoystick.getposition");
+                if (pos.X != 0 || pos.Y != 0)
+                {
+                    JoystickPositionChanged?.Invoke(this, pos);
+                }
+
+            }, null, 0, 50);
+
+            await base.OnAfterRenderAsync(firstRender);
+        }
+
+        public event EventHandler<JoyPosition> JoystickPositionChanged;
+
+
+        public class JoyPosition
+        {
+            public int X { get; set; }
+            public int Y { get; set; }
+        }
+    }
