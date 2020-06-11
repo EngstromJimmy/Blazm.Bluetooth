@@ -1,8 +1,29 @@
 ﻿@import url('open-iconic/font/css/open-iconic-bootstrap.min.css');
 
-html, body {
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+
+.buttonsPanel
+{
+    float:left;
+    width:200px;
+    height:300px;
 }
+
+.connectButtons {
+    margin:auto;
+    width:650px;
+}
+
+button {
+    width: 200px;
+}
+
+
+
+
+
+    html, body {
+        font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    }
 
 a, .btn-link {
     color: #0366d6;
