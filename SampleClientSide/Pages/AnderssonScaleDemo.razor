@@ -37,10 +37,10 @@
         var device = await navigator.RequestDeviceAsync(q);
         @*</8. RequestDevice>*@
 
-        @*<9. RequestDevice>*@
+        @*<9. Setup notification>*@
         await navigator.SetupNotifyAsync(device.Id, serviceid, characteristics);
         navigator.Notification += Value_Notification;
-        @*</9. RequestDevice>*@
+        @*</9. Setup notification>*@
     }
 
     @*<10. HandleNotification>*@
