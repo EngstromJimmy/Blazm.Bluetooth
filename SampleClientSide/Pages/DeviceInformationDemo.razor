@@ -23,8 +23,17 @@
         q.OptionalServices.Add(serviceid);
         var device = await navigator.RequestDeviceAsync(q);
 
+        //<1. Add Read>
         var bytes = await navigator.ReadValueAsync(device.Id, serviceid, "firmware_revision_string");
         firmware = System.Text.UTF8Encoding.UTF8.GetString(bytes);
+        //</1. Add Read>
+
+        int i = firmware.IndexOf('\0');
+        if (i >= 0)
+        {
+            firmware = firmware.Substring(0, i);
+        }
+        
         StateHasChanged();
 
     }
