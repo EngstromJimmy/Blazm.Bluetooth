@@ -1,8 +1,7 @@
 ﻿window.blazmwebbluetooth = {};
 
 var PairedBluetoothDevices = [];
-window.blazmwebbluetooth.requestDevice = async (query) => {
-
+window.blazmwebbluetooth.requestDevice = async (query) => {    
     var objquery = JSON.parse(query);
     console.log(query);
 

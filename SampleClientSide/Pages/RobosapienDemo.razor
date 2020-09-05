@@ -39,17 +39,17 @@
 @code {
 
     Device robosapien;
-    string serviceId;
-    string characteristicId;
+    Guid serviceId;
+    Guid characteristicId;
 
     protected async Task Connect()
     {
-        serviceId = "0000ffe5-0000-1000-8000-00805f9b34fb";
-        characteristicId = "0000ffe9-0000-1000-8000-00805f9b34fb";
+        serviceId = Guid.Parse("0000ffe5-0000-1000-8000-00805f9b34fb");
+        characteristicId = Guid.Parse("0000ffe9-0000-1000-8000-00805f9b34fb");
 
         var q = new RequestDeviceQuery();
         q.Filters.Add(new Filter() { Name = "Robosapien Blue" });
-        q.OptionalServices.Add(serviceId);
+        q.OptionalServices.Add(serviceId.ToString());
         robosapien = await navigator.RequestDeviceAsync(q);
     }
 
