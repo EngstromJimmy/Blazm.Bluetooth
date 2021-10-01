@@ -30,7 +30,9 @@ namespace Blazm.Bluetooth
         [JsonProperty(propertyName: "services")]
         public List<object> Services { get; set; } = new List<object>();
         [JsonProperty(propertyName: "name")]
-        public string Name  { get; set; }
+        public string Name { get; set; }
+        [JsonProperty(propertyName: "namePrefix")]
+        public string NamePrefix { get; set; }
         public bool ShouldSerializeServices()
         {
             return Services.Count > 0;
