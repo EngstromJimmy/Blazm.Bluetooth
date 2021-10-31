@@ -1,0 +1,97 @@
+﻿@page "/MipDemo"
+@using Blazm.Bluetooth
+@using BlazorWebAssemblySample.Components
+@using System.ComponentModel
+@inject BluetoothNavigator navigator
+@inject MiPWinRTSDK.MiP.MiPRobot mip
+
+<button @onclick="RequestDevice">Request device</button>
+<button @onclick="TurnRed">Red</button>
+<button @onclick="GetHardwareInfo">Get hardwareinfo</button>
+<button @onclick="async()=> { await mip.GetSoftwareVersion(); }">Get software version</button>
+
+<button @onclick="async()=> { await mip.MIPGetUp(MiPWinRTSDK.MiP.Models.GetUpEnum.FrontOrBack); }">Get up</button>
+
+
+@mip.BatteryLevel
+
+@mip.Status;
+
+
+<VirtualJoystick @ref="vjoy"></VirtualJoystick>
+
+
+
+@code{
+    VirtualJoystick vjoy;
+    Guid serviceId = Guid.Parse("0000ffe5-0000-1000-8000-00805f9b34fb");
+    Guid characteristicId = Guid.Parse("0000ffe9-0000-1000-8000-00805f9b34fb");
+
+
+    Device device = null;
+    protected async void RequestDevice()
+    {
+        mip.Connect();
+        mip.PropertyChanged += (object sender, PropertyChangedEventArgs e) =>
+        {
+            InvokeAsync(() =>
+            {
+                StateHasChanged();
+            });
+        };
+        vjoy.JoystickPositionChanged += async (object sender, VirtualJoystick.JoyPosition pos) => {
+
+            byte drive = 0;
+            byte spin = 0;
+            if (pos.Y > 0)
+            {
+                drive = Normalize(pos.Y,0x01,0x20);
+            }
+            else
+            {
+                drive = Normalize(Math.Abs(pos.Y), 0x21, 0x40);
+            }
+
+            if (pos.X > 0)
+            {
+                spin = Normalize(pos.X, 0x41, 0x60);
+            }
+            else
+            {
+                spin = Normalize(Math.Abs(pos.X), 0x61, 0x80);
+            }
+            System.Diagnostics.Debug.WriteLine(drive);
+
+            await mip.ContinuousDrive(drive, spin);
+        };
+    }
+
+    private byte Normalize(decimal value, byte min, byte max)
+    {
+        int interval=max-min;
+        var result = min + Convert.ToInt32(Math.Round(interval * (value / 100)));
+        if (result < min) return 0;
+        if (result > max) return max;
+        return (byte)(result & 0xFF);
+    }
+
+
+
+
+    protected async Task TurnRed()
+    {
+        await mip.SetChestLED(0xff, 0x00, 0x00);
+        //var bytes = new uint[] { 0x84, 0xff, 0x00, 0x00 };
+        //await navigator.WriteValue(device.Id, serviceId, characteristicId, bytes);
+    }
+
+
+    protected async Task GetHardwareInfo()
+    {
+        await mip.GetHardwareInfo();
+
+    }
+
+
+
+    }

@@ -3,18 +3,17 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace Blazm.Bluetooth
 {
     public class BluetoothNavigator
     {
-        private IJSRuntime jsRuntime;
+        private readonly Lazy<Task<IJSObjectReference>> moduleTask;
         public BluetoothNavigator(IJSRuntime jsRuntime)
-        {
-            this.jsRuntime = jsRuntime;
+        {       
+            moduleTask = new(() => jsRuntime.InvokeAsync<IJSObjectReference>(
+               "import", "./_content/Blazm.Bluetooth/Blazm.Bluetooth.js").AsTask());
         }
 
         public async Task<Device> RequestDeviceAsync(RequestDeviceQuery query)
@@ -25,14 +24,16 @@ namespace Blazm.Bluetooth
                             {
                                 NullValueHandling = NullValueHandling.Ignore
                             });
-
-            return await jsRuntime.InvokeAsync<Device>("blazmwebbluetooth.requestDevice",json);
+            var module = await moduleTask.Value;
+            var device=await module.InvokeAsync<Device>("requestDevice",json);
+            device.InitDevice(this);
+            return device;
         }
 
 #region WriteValueAsync
         public async Task WriteValueAsync(string deviceId, Guid serviceId, Guid characteristicId, byte[] value)
         {
-                await WriteValueAsync(deviceId, serviceId.ToString(), characteristicId.ToString(),value);
+            await WriteValueAsync(deviceId, serviceId.ToString(), characteristicId.ToString(),value);
         }
 
         public async Task WriteValueAsync(string deviceId, Guid serviceId, string characteristicId, byte[] value)
@@ -48,13 +49,15 @@ namespace Blazm.Bluetooth
         public async Task WriteValueAsync(string deviceId, string serviceId, string characteristicId,  byte[] value)
         {
             var bytes = value.Select(v => (uint)v).ToArray();
-            await jsRuntime.InvokeVoidAsync("blazmwebbluetooth.writeValue", deviceId, serviceId.ToLowerInvariant(), characteristicId.ToLowerInvariant(), bytes);
+            var module = await moduleTask.Value;
+            await module.InvokeVoidAsync("writeValue", deviceId, serviceId.ToLowerInvariant(), characteristicId.ToLowerInvariant(), bytes);
         }
         #endregion
 #region ReadValueAsync
         public async Task<byte[]> ReadValueAsync(string deviceId, string serviceId, string characteristicId)
         {
-            var value= await jsRuntime.InvokeAsync<uint[]>("blazmwebbluetooth.readValue", deviceId, serviceId.ToLowerInvariant(), characteristicId.ToLowerInvariant());
+            var module = await moduleTask.Value;
+            var value= await module.InvokeAsync<uint[]>("readValue", deviceId, serviceId.ToLowerInvariant(), characteristicId.ToLowerInvariant());
             return value.Select(v => (byte)(v & 0xFF)).ToArray();
         }
 
@@ -75,27 +78,13 @@ namespace Blazm.Bluetooth
         #endregion
 
         #region SetupNotifyAsync
-        private DotNetObjectReference<NotificationHandler> NotificationHandler;
-        public async Task SetupNotifyAsync(string deviceId, string serviceId, string characteristicId)
+        private List<DotNetObjectReference<Device>> NotificationHandlers = new();
+        public async Task SetupNotifyAsync(Device device, string serviceId, string characteristicId)
         {
-            if (NotificationHandler == null)
-            {
-                NotificationHandler = DotNetObjectReference.Create(new NotificationHandler(this));
-            }
-
-            await jsRuntime.InvokeVoidAsync("blazmwebbluetooth.setupNotify", deviceId, serviceId.ToLowerInvariant(), characteristicId.ToLowerInvariant(), NotificationHandler);
-        }
-        public async Task SetupNotifyAsync(string deviceId, Guid serviceId, string characteristicId)
-        {
-            await SetupNotifyAsync(deviceId, serviceId.ToString(), characteristicId);
-        }
-        public async Task SetupNotifyAsync(string deviceId, string serviceId, Guid characteristicId)
-        {
-            await SetupNotifyAsync(deviceId, serviceId, characteristicId.ToString());
-        }
-        public async Task SetupNotifyAsync(string deviceId, Guid serviceId, Guid characteristicId)
-        {
-            await SetupNotifyAsync(deviceId, serviceId.ToString(), characteristicId.ToString());
+            var handler = DotNetObjectReference.Create(device);
+            NotificationHandlers.Add(handler);
+            var module = await moduleTask.Value;
+            await module.InvokeVoidAsync("setupNotify", device.Id, serviceId.ToLowerInvariant(), characteristicId.ToLowerInvariant(), handler);
         }
         #endregion
 

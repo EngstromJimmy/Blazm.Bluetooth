@@ -1,0 +1,57 @@
+﻿@page "/RobosapienDemo"
+@using Blazm.Bluetooth
+@using Devices.Wowwee;
+@inject BluetoothNavigator navigator
+
+<h3>Robosapien Blue</h3>
+
+<div>
+    <div class="buttonsPanel">
+        <button @onclick="@(async ()=>{ await SendCommand(Robosapien.RightHandForward); })">RightHandForward</button>
+        <button @onclick="@(async ()=>{ await SendCommand(Robosapien.RightHandBackward); })">RightHandBackward</button>
+        <hr />
+        <button @onclick="@(async ()=>{ await SendCommand(Robosapien.RightShoulderForward); })">RightShoulderForward</button>
+        <button @onclick="@(async ()=>{ await SendCommand(Robosapien.RightShoulderBackward); })">RightShoulderBackward</button>
+    </div>
+
+    <div style="float:left">
+        <div class="connectButtons">
+            <button @onclick="Connect">Connect</button>
+            <button @onclick="@(async ()=>{ await SendCommand(Robosapien.SFXBurp); })">Burp</button>
+            <button @onclick="@(async ()=>{ await SendCommand(Robosapien.SFXOops); })">Oops</button>
+        </div>
+        <img src="/Robosapien.png" />
+    </div>
+
+    <div class="buttonsPanel">
+        <button @onclick="@(async ()=>{ await SendCommand(Robosapien.LeftHandForward); })">LeftHandForward</button>
+        <button @onclick="@(async ()=>{ await SendCommand(Robosapien.LeftHandBackward); })">LeftHandBackward</button>
+        <hr />
+        <button @onclick="@(async ()=>{ await SendCommand(Robosapien.LeftShoulderForward); })">LeftShoulderForward</button>
+        <button @onclick="@(async ()=>{ await SendCommand(Robosapien.LeftShoulderBackward); })">LeftShoulderBackward</button>
+    </div>
+</div>
+
+
+@code {
+
+    Device robosapien;
+    Guid serviceId;
+    Guid characteristicId;
+
+    protected async Task Connect()
+    {
+        serviceId = Guid.Parse("0000ffe5-0000-1000-8000-00805f9b34fb");
+        characteristicId = Guid.Parse("0000ffe9-0000-1000-8000-00805f9b34fb");
+
+        var q = new RequestDeviceQuery();
+        q.Filters.Add(new Filter() { Name = "Robosapien Blue" });
+        q.OptionalServices.Add(serviceId.ToString());
+        robosapien = await navigator.RequestDeviceAsync(q);
+    }
+
+    public async Task SendCommand(byte command)
+    {
+        await navigator.WriteValueAsync(robosapien.Id, serviceId, characteristicId, new byte[] { command });
+    }
+}
