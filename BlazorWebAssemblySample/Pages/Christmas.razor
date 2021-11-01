@@ -1,0 +1,55 @@
+﻿@page "/christmas"
+
+@using Blazm.Bluetooth
+@inject BluetoothNavigator navigator
+
+
+<h3>Christmas lights</h3>
+
+<button @onclick="Connect">Connect</button><br/>
+@if(device!=null)
+{
+    <button @onclick="Red">Red</button><br/>
+    <button @onclick="Green">Green</button><br/>
+    <button @onclick="Blue">Blue</button><br/>
+}
+
+@code {
+    Device? device = null;
+    
+    
+    string serviceid = "00007777-0000-1000-8000-00805f9b34fb";
+    string serviceid2 = "00006666-0000-1000-8000-00805f9b34fb";
+    string characteristicsid = "00008877-0000-1000-8000-00805f9b34fb";
+    protected async Task Connect()
+    {
+        var q = new RequestDeviceQuery();
+        q.Filters.Add(new Filter() { Services = { serviceid2 } });
+        q.OptionalServices.Add(serviceid);
+        device = await navigator.RequestDeviceAsync(q);
+
+        StateHasChanged();
+    }
+
+    protected async Task Green()
+    {
+        var signed=new sbyte[]{ -91, 90, 85, 0, 127, 0 };
+        var value = (byte[])(Array)signed;
+        await device.WriteValueAsync(serviceid,characteristicsid,value);
+    }
+
+    protected async Task Red()
+    {
+        var signed = new sbyte[] { -91, 90, 85, 127, 0, 0 };
+        var value = (byte[])(Array)signed;
+        await device.WriteValueAsync(serviceid,characteristicsid,value);
+    }
+
+    protected async Task Blue()
+    {
+        var signed = new sbyte[] { -91, 90, 85, 0, 0, 127 };
+        var value = (byte[])(Array)signed;
+        await device.WriteValueAsync(serviceid,characteristicsid,value);
+    }
+    
+}
