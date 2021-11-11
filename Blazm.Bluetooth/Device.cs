@@ -7,8 +7,8 @@ namespace Blazm.Bluetooth
     [Serializable]
     public class Device
     {
-        private BluetoothNavigator _webBluetoothNavigator;
-        public void InitDevice(BluetoothNavigator bluetoothNavigator)
+        private IBluetoothNavigator _webBluetoothNavigator;
+        public void InitDevice(IBluetoothNavigator bluetoothNavigator)
         {
             _webBluetoothNavigator = bluetoothNavigator;
         }

@@ -1,7 +1,7 @@
 ﻿@page "/christmas"
 
 @using Blazm.Bluetooth
-@inject BluetoothNavigator navigator
+@inject IBluetoothNavigator navigator
 
 
 <h3>Christmas lights</h3>
@@ -15,7 +15,7 @@
 }
 
 @code {
-    Device? device = null;
+    Device device = null;
     
     
     string serviceid = "00007777-0000-1000-8000-00805f9b34fb";

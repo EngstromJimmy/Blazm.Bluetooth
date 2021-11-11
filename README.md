@@ -20,8 +20,8 @@ Telerik UI for Blazor – Increase productivity and cut cost in half! Use the Te
 ```<script src="_content/Blazm.Bluetooth/JSInterop.js"></script>```
 4. In the component you want to connect to a device add the Blazm.Bluetooth Namespace
 ```@using Blazm.Bluetooth```
-5. Inject the BluetoothNavigator (the instance that will communicate with your device)
-```@inject BluetoothNavigator navigator```
+5. Inject the IBluetoothNavigator (the instance that will communicate with your device)
+```@inject IBluetoothNavigator navigator```
 
 Now you are all setup now it is time to connect to a device.
 
