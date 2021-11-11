@@ -6,7 +6,7 @@ namespace Blazm.Bluetooth
     {
         public static IServiceCollection AddBlazmBluetooth(this IServiceCollection services)
         {
-            return services.AddTransient<BluetoothNavigator>();
+            return services.AddTransient<IBluetoothNavigator, BluetoothNavigator>();
         }
     }
 }

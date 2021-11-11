@@ -8,9 +8,7 @@ namespace MiPWinRTSDK;
 
 class MiPBase : INotifyPropertyChanged
 {
-        
-
-    protected BluetoothNavigator Navigator { get; set; }
+    protected IBluetoothNavigator Navigator { get; set; }
 
     public Device Device { get; set; }
 
@@ -260,11 +258,10 @@ class MiPBase : INotifyPropertyChanged
     #region Recieve
     //GattCharacteristic CharacteristicsNotify { get; set; }
 
-    public virtual async void Connect()
+    public virtual void Connect()
     {
             
     }
-
         
 
     public byte[] StringToByteArray(string hex)

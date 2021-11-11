@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Blazm.Bluetooth
 {
-    public class BluetoothNavigator
+    public class BluetoothNavigator : IBluetoothNavigator
     {
         private readonly Lazy<Task<IJSObjectReference>> moduleTask;
         public BluetoothNavigator(IJSRuntime jsRuntime)
@@ -95,12 +95,11 @@ namespace Blazm.Bluetooth
         public event EventHandler<CharacteristicEventArgs> Notification;
     }
 
-
     public class NotificationHandler
     {
 
-        BluetoothNavigator bluetoothNavigator;
-        public NotificationHandler(BluetoothNavigator bluetoothNavigator)
+        IBluetoothNavigator bluetoothNavigator;
+        public NotificationHandler(IBluetoothNavigator bluetoothNavigator)
         {
             this.bluetoothNavigator = bluetoothNavigator;
         }
