@@ -105,11 +105,10 @@ export async function setupNotify(deviceId, serviceId, characteristicId, notific
 }
 
 async function handleCharacteristicValueChanged(event) {
-
     var value = event.target.value;
     var deviceId = event.target.service.device.id;
     var uint8Array = new Uint8Array(value.buffer);
+    var array = [].slice.call(uint8Array);
     var device = getDevice(deviceId);
-    console.log(device);   
-    await device.NotificationHandler.invokeMethodAsync('HandleCharacteristicValueChanged', event.target.service.uuid, event.target.uuid, uint8Array);
+    await device.NotificationHandler.invokeMethodAsync('HandleCharacteristicValueChanged', event.target.service.uuid, event.target.uuid, array);
 }
