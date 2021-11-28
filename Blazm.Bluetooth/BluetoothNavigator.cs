@@ -79,22 +79,15 @@ namespace Blazm.Bluetooth
     #endregion
 
     #region SetupNotifyAsync
-    private List<DotNetObjectReference<NotificationHandler>> NotificationHandlers = new();
+    private List<DotNetObjectReference<Device>> NotificationHandlers = new();
     public async Task SetupNotifyAsync(Device device, string serviceId, string characteristicId)
     {
-      var handler = DotNetObjectReference.Create(new NotificationHandler(this));
+      var handler = DotNetObjectReference.Create(device);
       NotificationHandlers.Add(handler);
       var module = await moduleTask.Value;
       await module.InvokeVoidAsync("setupNotify", device.Id, serviceId.ToLowerInvariant(), characteristicId.ToLowerInvariant(), handler);
     }
     #endregion
-
-    public void TriggerNotification(CharacteristicEventArgs args)
-    {
-      Notification?.Invoke(this, args);
-    }
-
-    public event EventHandler<CharacteristicEventArgs> Notification;
   }
 
   public class NotificationHandler
@@ -105,17 +98,7 @@ namespace Blazm.Bluetooth
       this.bluetoothNavigator = bluetoothNavigator;
     }
 
-    [JSInvokable]
-    public void HandleCharacteristicValueChanged(Guid serviceGuid, Guid characteristicGuid, uint[] value)
-    {
-      byte[] byteArray = value.Select(u => (byte)(u & 0xff)).ToArray();
-
-      CharacteristicEventArgs args = new CharacteristicEventArgs();
-      args.ServiceId = serviceGuid;
-      args.CharacteristicId = characteristicGuid;
-      args.Value = byteArray;
-      bluetoothNavigator.TriggerNotification(args);
-    }
+    
   }
 
   public class CharacteristicEventArgs : EventArgs

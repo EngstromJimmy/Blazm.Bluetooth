@@ -35,7 +35,7 @@ class MiPRobot : MiPBase
             var characteristicGuid = "0000ffe4-0000-1000-8000-00805f9b34fb";
 
             await Device.SetupNotifyAsync(serviceGuid, characteristicGuid);
-            Navigator.Notification += Value_Notification;
+            Device.Notification += Value_Notification;
 
             //CharacteristicsNotify = await Device.SetUpNotifyAsync(serviceGuid, characteristicGuid);
             //CharacteristicsNotify.ValueChanged += CharacteristicsNotify_ValueChanged;
@@ -49,12 +49,9 @@ class MiPRobot : MiPBase
 
     private void Value_Notification(object sender, CharacteristicEventArgs e)
     {
-
-
         var data = e.Value.ToArray();
         var hexstring = UTF8Encoding.UTF8.GetString(data, 0, data.Count());
         var bytes = StringToByteArray(hexstring);
-
 
         switch (bytes[0])
         {

@@ -15,6 +15,4 @@ public interface IBluetoothNavigator
   Task<byte[]> ReadValueAsync(string deviceId, string serviceId, Guid characteristicId);
   Task<byte[]> ReadValueAsync(string deviceId, Guid serviceId, Guid characteristicId);
   Task SetupNotifyAsync(Device device, string serviceId, string characteristicId);
-  void TriggerNotification(CharacteristicEventArgs args);
-  event EventHandler<CharacteristicEventArgs> Notification;
 }
