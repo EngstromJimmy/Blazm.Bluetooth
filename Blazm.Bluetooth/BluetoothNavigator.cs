@@ -5,76 +5,76 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Blazm.Bluetooth
+namespace Blazm.Bluetooth;
+
+public class BluetoothNavigator : IBluetoothNavigator
 {
-  public class BluetoothNavigator : IBluetoothNavigator
-  {
     private readonly Lazy<Task<IJSObjectReference>> moduleTask;
     public BluetoothNavigator(IJSRuntime jsRuntime)
     {
-      moduleTask = new(() => jsRuntime.InvokeAsync<IJSObjectReference>(
-         "import", "./_content/Blazm.Bluetooth/Blazm.Bluetooth.js").AsTask());
+        moduleTask = new(() => jsRuntime.InvokeAsync<IJSObjectReference>(
+           "import", "./_content/Blazm.Bluetooth/Blazm.Bluetooth.js").AsTask());
     }
 
     public async Task<Device> RequestDeviceAsync(RequestDeviceQuery query)
     {
-      string json = JsonConvert.SerializeObject(query,
-                      Formatting.None,
-                      new JsonSerializerSettings
-                      {
-                        NullValueHandling = NullValueHandling.Ignore
-                      });
-      var module = await moduleTask.Value;
-      var device = await module.InvokeAsync<Device>("requestDevice", json);
-      device.InitDevice(this);
-      return device;
+        string json = JsonConvert.SerializeObject(query,
+                        Formatting.None,
+                        new JsonSerializerSettings
+                        {
+                            NullValueHandling = NullValueHandling.Ignore
+                        });
+        var module = await moduleTask.Value;
+        var device = await module.InvokeAsync<Device>("requestDevice", json);
+        device.InitDevice(this);
+        return device;
     }
 
     #region WriteValueAsync
     public async Task WriteValueAsync(string deviceId, Guid serviceId, Guid characteristicId, byte[] value)
     {
-      await WriteValueAsync(deviceId, serviceId.ToString(), characteristicId.ToString(), value);
+        await WriteValueAsync(deviceId, serviceId.ToString(), characteristicId.ToString(), value);
     }
 
     public async Task WriteValueAsync(string deviceId, Guid serviceId, string characteristicId, byte[] value)
     {
-      await WriteValueAsync(deviceId, serviceId.ToString(), characteristicId, value);
+        await WriteValueAsync(deviceId, serviceId.ToString(), characteristicId, value);
     }
 
     public async Task WriteValueAsync(string deviceId, string serviceId, Guid characteristicId, byte[] value)
     {
-      await WriteValueAsync(deviceId, serviceId, characteristicId.ToString(), value);
+        await WriteValueAsync(deviceId, serviceId, characteristicId.ToString(), value);
     }
 
     public async Task WriteValueAsync(string deviceId, string serviceId, string characteristicId, byte[] value)
     {
-      var bytes = value.Select(v => (uint)v).ToArray();
-      var module = await moduleTask.Value;
-      await module.InvokeVoidAsync("writeValue", deviceId, serviceId.ToLowerInvariant(), characteristicId.ToLowerInvariant(), bytes);
+        var bytes = value.Select(v => (uint)v).ToArray();
+        var module = await moduleTask.Value;
+        await module.InvokeVoidAsync("writeValue", deviceId, serviceId.ToLowerInvariant(), characteristicId.ToLowerInvariant(), bytes);
     }
     #endregion
 
     #region ReadValueAsync
     public async Task<byte[]> ReadValueAsync(string deviceId, string serviceId, string characteristicId)
     {
-      var module = await moduleTask.Value;
-      var value = await module.InvokeAsync<uint[]>("readValue", deviceId, serviceId.ToLowerInvariant(), characteristicId.ToLowerInvariant());
-      return value.Select(v => (byte)(v & 0xFF)).ToArray();
+        var module = await moduleTask.Value;
+        var value = await module.InvokeAsync<uint[]>("readValue", deviceId, serviceId.ToLowerInvariant(), characteristicId.ToLowerInvariant());
+        return value.Select(v => (byte)(v & 0xFF)).ToArray();
     }
 
     public async Task<byte[]> ReadValueAsync(string deviceId, Guid serviceId, string characteristicId)
     {
-      return await ReadValueAsync(deviceId, serviceId.ToString(), characteristicId);
+        return await ReadValueAsync(deviceId, serviceId.ToString(), characteristicId);
     }
 
     public async Task<byte[]> ReadValueAsync(string deviceId, string serviceId, Guid characteristicId)
     {
-      return await ReadValueAsync(deviceId, serviceId, characteristicId.ToString());
+        return await ReadValueAsync(deviceId, serviceId, characteristicId.ToString());
     }
 
     public async Task<byte[]> ReadValueAsync(string deviceId, Guid serviceId, Guid characteristicId)
     {
-      return await ReadValueAsync(deviceId, serviceId.ToString(), characteristicId.ToString());
+        return await ReadValueAsync(deviceId, serviceId.ToString(), characteristicId.ToString());
     }
     #endregion
 
@@ -82,29 +82,27 @@ namespace Blazm.Bluetooth
     private List<DotNetObjectReference<Device>> NotificationHandlers = new();
     public async Task SetupNotifyAsync(Device device, string serviceId, string characteristicId)
     {
-      var handler = DotNetObjectReference.Create(device);
-      NotificationHandlers.Add(handler);
-      var module = await moduleTask.Value;
-      await module.InvokeVoidAsync("setupNotify", device.Id, serviceId.ToLowerInvariant(), characteristicId.ToLowerInvariant(), handler);
+        var handler = DotNetObjectReference.Create(device);
+        NotificationHandlers.Add(handler);
+        var module = await moduleTask.Value;
+        await module.InvokeVoidAsync("setupNotify", device.Id, serviceId.ToLowerInvariant(), characteristicId.ToLowerInvariant(), handler);
     }
     #endregion
-  }
+}
 
-  public class NotificationHandler
-  {
+public class NotificationHandler
+{
     IBluetoothNavigator bluetoothNavigator;
     public NotificationHandler(IBluetoothNavigator bluetoothNavigator)
     {
-      this.bluetoothNavigator = bluetoothNavigator;
+        this.bluetoothNavigator = bluetoothNavigator;
     }
 
-    
-  }
+}
 
-  public class CharacteristicEventArgs : EventArgs
-  {
+public class CharacteristicEventArgs : EventArgs
+{
     public Guid ServiceId { get; set; }
     public Guid CharacteristicId { get; set; }
     public byte[] Value { get; set; }
-  }
 }

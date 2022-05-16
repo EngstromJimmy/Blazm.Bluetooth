@@ -24,7 +24,7 @@
         var device = await navigator.RequestDeviceAsync(q);
 
         //<1. Add Read>
-        var bytes = await navigator.ReadValueAsync(device.Id, serviceid, "firmware_revision_string");
+        var bytes = await device.ReadValueAsync(serviceid, "firmware_revision_string");
         firmware = System.Text.UTF8Encoding.UTF8.GetString(bytes);
         //</1. Add Read>
 

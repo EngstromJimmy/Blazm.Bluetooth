@@ -21,32 +21,28 @@
 
     protected async Task Connect()
     {
-        @*<5. AddService>*@
         var serviceid = "0000ffb0-0000-1000-8000-00805f9b34fb";
-        @*</5. AddService>*@
-        @*<6. AddCharacteristic>*@
         var characteristics = "0000ffb2-0000-1000-8000-00805f9b34fb";
-        @*</6. AddCharacteristic>*@
-
-        @*<7. AddFilter>*@
+        
+        @*<5. AddFilter>*@
         var q = new RequestDeviceQuery();
         q.Filters.Add(new Filter() { Services = { serviceid } });
-        @*</7. AddFilter>*@
+        @*</5. AddFilter>*@
 
-        @*<8. RequestDevice>*@
+        @*<6. RequestDevice>*@
         var device = await navigator.RequestDeviceAsync(q);
-        @*</8. RequestDevice>*@
+        @*</6. RequestDevice>*@
 
-        @*<9. Setup notification>*@
+        @*<7. Setup notification>*@
         await device.SetupNotifyAsync(serviceid, characteristics);
         device.Notification += Value_Notification;
-        @*</9. Setup notification>*@
+        @*</7. Setup notification>*@
     }
 
-    @*<10. HandleNotification>*@
+    @*<8. HandleNotification>*@
     private void Value_Notification(object sender, CharacteristicEventArgs e)
     {
-        var data = e.Value.ToArray();
+        var data = e.Value;
         weight = (256 * data[4]) + data[5];
         if (data[7] == 1)
         {
@@ -55,5 +51,5 @@
 
         StateHasChanged();
     }
-    @*</10. HandleNotification>*@
+    @*</8. HandleNotification>*@
 }

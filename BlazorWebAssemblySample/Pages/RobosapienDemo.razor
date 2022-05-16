@@ -34,24 +34,27 @@
 
 
 @code {
-
+    
     Device robosapien;
-    Guid serviceId;
-    Guid characteristicId;
+    string serviceId;
+    string characteristicId;
 
     protected async Task Connect()
     {
-        serviceId = Guid.Parse("0000ffe5-0000-1000-8000-00805f9b34fb");
-        characteristicId = Guid.Parse("0000ffe9-0000-1000-8000-00805f9b34fb");
-
+        serviceId = "0000ffe5-0000-1000-8000-00805f9b34fb";
+        characteristicId = "0000ffe9-0000-1000-8000-00805f9b34fb";
+        //<1. Add Robosapien>
         var q = new RequestDeviceQuery();
         q.Filters.Add(new Filter() { Name = "Robosapien Blue" });
         q.OptionalServices.Add(serviceId.ToString());
         robosapien = await navigator.RequestDeviceAsync(q);
+        //</1. Add Robosapien>
     }
 
     public async Task SendCommand(byte command)
     {
-        await navigator.WriteValueAsync(robosapien.Id, serviceId, characteristicId, new byte[] { command });
+        //<2. Send Command>
+        await robosapien.WriteValueAsync(serviceId, characteristicId, new byte[] { command });
+        //<2. Send Command>
     }
 }

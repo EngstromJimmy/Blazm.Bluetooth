@@ -3,6 +3,11 @@
   <PropertyGroup>
 	  <TargetFramework>net6.0</TargetFramework>
 	  <Nullable>disable</Nullable>
+	  <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+	  <PackageLicenseExpression>MIT</PackageLicenseExpression>
+	  <Version>1.0.1</Version>
+	  <RepositoryUrl>https://github.com/EngstromJimmy/Blazm.Bluetooth</RepositoryUrl>
+	  <PackageTags>blazor;bluetooth</PackageTags>
   </PropertyGroup>
 
 	<ItemGroup>

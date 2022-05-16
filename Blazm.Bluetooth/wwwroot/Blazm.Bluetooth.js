@@ -58,8 +58,9 @@ function getDevice(deviceId) {
 
 export async function writeValue(deviceId, serviceId, characteristicId, value)
 {
+    alert("writeValue");
     var device = getDevice(deviceId);
-    console.log(device);
+    console.log("Found device" + device);
     if (device.gatt.connected) {
         var service = await device.gatt.getPrimaryService(serviceId);
         var characteristic = await service.getCharacteristic(characteristicId);

@@ -11,6 +11,10 @@ class MiPBase : INotifyPropertyChanged
     protected IBluetoothNavigator Navigator { get; set; }
 
     public Device Device { get; set; }
+    public string WriteServiceGuid = "0000ffe5-0000-1000-8000-00805f9b34fb";
+    public string WriteCharacteristicGuid = "0000ffe9-0000-1000-8000-00805f9b34fb";
+    public string ReadServiceGuid = "0000ffe0-0000-1000-8000-00805f9b34fb";
+    public string ReadCharacteristicGuid = "0000ffe4-0000-1000-8000-00805f9b34fb";
 
     #region Properties
     private byte chestLEDTimeOff;
@@ -54,9 +58,6 @@ class MiPBase : INotifyPropertyChanged
     }
     #endregion
 
-
-
-
     public async Task DistanceDrive(DirectionEnum direction, byte distance, TurnEnum turn, int angle)
     {
         List<byte> bytes = new List<byte>();
@@ -95,7 +96,6 @@ class MiPBase : INotifyPropertyChanged
         await SendCommand(0x72, bytes);
     }
 
-
     public async Task TurnLeftByAngle(byte speed, int angle)
     {
         List<byte> bytes = new List<byte>();
@@ -129,18 +129,11 @@ class MiPBase : INotifyPropertyChanged
 
     internal async Task SendCommand(byte command, List<byte> commandBytes)
     {
-        //if (this.Device== BluetoothConnectionStatus.Connected)
-        //{
-        var serviceGuid = "0000ffe5-0000-1000-8000-00805f9b34fb";
-        var characteristicGuid = "0000ffe9-0000-1000-8000-00805f9b34fb";
 
         //Add command to the beginning
         commandBytes.Insert(0, command);
 
-        await Navigator.WriteValueAsync(Device.Id, serviceGuid, characteristicGuid, commandBytes.ToArray());
-
-        //await this.Device.WriteValueAsync(serviceGuid, characteristicGuid, commandBytes.ToArray());
-        //}
+        await Navigator.WriteValueAsync(Device.Id, WriteServiceGuid, WriteCharacteristicGuid, commandBytes.ToArray());
     }
 
     public async Task RequestChestLED()
@@ -148,7 +141,6 @@ class MiPBase : INotifyPropertyChanged
         List<byte> bytes = new List<byte>();
         await SendCommand(0x83, bytes);
     }
-
 
     public async Task SetChestLED(byte red, byte green, byte blue)
     {
@@ -158,7 +150,6 @@ class MiPBase : INotifyPropertyChanged
         bytes.Add((byte)blue);
         await SendCommand(0x84, bytes);
     }
-
 
     public async Task FlashChestLED(byte red, byte green, byte blue, byte timeOn, byte timeOff)
     {
@@ -171,7 +162,6 @@ class MiPBase : INotifyPropertyChanged
         await SendCommand(0x89, bytes);
     }
 
-
     public async Task SetHeadLED(LightEnum light1, LightEnum light2, LightEnum light3, LightEnum light4)
     {
         List<byte> bytes = new List<byte>();
@@ -181,7 +171,6 @@ class MiPBase : INotifyPropertyChanged
         bytes.Add((byte)light4);
         await SendCommand(0x8a, bytes);
     }
-
 
     public async Task RequestHeadLED()
     {
@@ -247,22 +236,19 @@ class MiPBase : INotifyPropertyChanged
         await SendCommand(0x77, bytes);
     }
 
-
     public async Task RequestStatus()
     {
         List<byte> bytes = new List<byte>();
         await SendCommand(0x79, bytes);
     }
 
-
     #region Recieve
     //GattCharacteristic CharacteristicsNotify { get; set; }
 
     public virtual void Connect()
     {
-            
+
     }
-        
 
     public byte[] StringToByteArray(string hex)
     {
@@ -294,4 +280,3 @@ class MiPBase : INotifyPropertyChanged
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(caller));
     }
 }
-
