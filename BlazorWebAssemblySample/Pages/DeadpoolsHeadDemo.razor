@@ -1,0 +1,76 @@
+﻿@page "/Deadpool"
+@using Blazm.Bluetooth
+@inject IBluetoothNavigator navigator
+
+<h3>Deadpools head</h3>
+
+<button @onclick="ConnectAsync">Connect</button>
+
+<input type="number" @bind-value="command" />
+
+<button @onclick="SendCommandAsync">Command</button>
+
+<button disabled="@Timer.Enabled" @onclick="@(async ()=>{Timer.Start();})">Keep awake</button>
+
+<h1>@command</h1>
+@code {
+    System.Timers.Timer Timer = new System.Timers.Timer(5000);
+    Device device;
+    string serviceid = "7cd80aa0-b9ec-42cb-9ace-10389f7e2576";
+    string writecharacteristicid = "7cd801b0-b9ec-42cb-9ace-10389f7e2576";
+    string notificationcharacteristicid = "7cd802b0-b9ec-42cb-9ace-10389f7e2576";
+    byte command = 0;
+
+    protected async Task ConnectAsync()
+    {
+        //===== Connect Bluetooth =====
+        Timer.Elapsed += async (object? sender, System.Timers.ElapsedEventArgs e) => { await AwakeAsync(); };
+        var q = new RequestDeviceQuery();
+        q.Filters.Add(new Filter() { Name = "WilsonBLE" });
+        q.OptionalServices.Add(serviceid);
+
+        device = await navigator.RequestDeviceAsync(q);
+
+        //Setting up notifications
+        await device.SetupNotifyAsync(serviceid, notificationcharacteristicid);
+        device.Notification += Value_Notification;
+
+        //===== Connect App =====
+        await device.WriteValueAsync(serviceid, writecharacteristicid, new byte[] { 0x01, 0x00 });
+        await device.WriteValueAsync(serviceid, writecharacteristicid, new byte[] { 0x50, 0x8d }); //keep awake
+        await device.WriteValueAsync(serviceid, writecharacteristicid, new byte[] { 0x04, 0x00, 0xf5, 0x8c, 0x54, 0xa4, 0xec, 0xb1 });
+        await device.WriteValueAsync(serviceid, writecharacteristicid, new byte[] { 0x50, 0x8d });
+
+        Timer.Start();
+    }
+
+    protected async Task SendCommandAsync()
+    {
+        Timer.Stop();
+        var bytes = new byte[] { 0x17, 0x00,command, 0x00 };
+        Console.WriteLine("Sent:" + string.Join(',', bytes.Select(h => "0x" + h.ToString("X2"))));
+        await device.WriteValueAsync(serviceid, writecharacteristicid, bytes);
+        await Task.Delay(2000);
+        await AwakeAsync();
+        StateHasChanged();
+        Timer.Start();
+    }
+
+    protected async Task AwakeAsync()
+    {
+        await device.WriteValueAsync(serviceid, writecharacteristicid, new byte[] { 0x50, 0x8d }); //keep awake
+    }
+
+    private void Value_Notification(object sender, CharacteristicEventArgs e)
+    {
+        if (e.Value.Length == 3 && e.Value[0] == 0x20 && e.Value[1] == 0x4E && e.Value[2] == 0x01)
+        {
+            Timer.Start();
+        }
+
+        string values = "";
+        values = string.Join(',', e.Value.Select(h => "0x" + h.ToString("X2")));
+        Console.WriteLine(values);
+        StateHasChanged();
+    }
+}

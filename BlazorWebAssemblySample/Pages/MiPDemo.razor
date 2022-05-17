@@ -18,9 +18,7 @@
 
 @code{
     VirtualJoystick vjoy;
-    Guid serviceId = Guid.Parse("0000ffe5-0000-1000-8000-00805f9b34fb");
-    Guid characteristicId = Guid.Parse("0000ffe9-0000-1000-8000-00805f9b34fb");
-
+    
     protected void RequestDevice()
     {
         mip.Connect();
@@ -70,8 +68,6 @@
     protected async Task TurnRed()
     {
         await mip.SetChestLED(0xff, 0x00, 0x00);
-        //var bytes = new uint[] { 0x84, 0xff, 0x00, 0x00 };
-        //await navigator.WriteValue(device.Id, serviceId, characteristicId, bytes);
     }
 
 
@@ -81,4 +77,4 @@
 
     }
 
-    }
+}

@@ -1,12 +1,11 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 
-namespace Blazm.Bluetooth
+namespace Blazm.Bluetooth;
+
+public static class ServiceExtensions
 {
-    public static class ServiceExtensions
+    public static IServiceCollection AddBlazmBluetooth(this IServiceCollection services)
     {
-        public static IServiceCollection AddBlazmBluetooth(this IServiceCollection services)
-        {
-            return services.AddTransient<IBluetoothNavigator, BluetoothNavigator>();
-        }
+        return services.AddTransient<IBluetoothNavigator, BluetoothNavigator>();
     }
 }

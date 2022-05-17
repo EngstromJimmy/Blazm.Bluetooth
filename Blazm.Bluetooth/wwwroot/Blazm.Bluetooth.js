@@ -58,8 +58,9 @@ function getDevice(deviceId) {
 
 export async function writeValue(deviceId, serviceId, characteristicId, value)
 {
+    alert("writeValue");
     var device = getDevice(deviceId);
-    console.log(device);
+    console.log("Found device" + device);
     if (device.gatt.connected) {
         var service = await device.gatt.getPrimaryService(serviceId);
         var characteristic = await service.getCharacteristic(characteristicId);
@@ -105,11 +106,9 @@ export async function setupNotify(deviceId, serviceId, characteristicId, notific
 }
 
 async function handleCharacteristicValueChanged(event) {
-
     var value = event.target.value;
     var deviceId = event.target.service.device.id;
     var uint8Array = new Uint8Array(value.buffer);
     var device = getDevice(deviceId);
-    console.log(device);   
     await device.NotificationHandler.invokeMethodAsync('HandleCharacteristicValueChanged', event.target.service.uuid, event.target.uuid, uint8Array);
 }

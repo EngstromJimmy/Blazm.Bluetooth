@@ -4,7 +4,6 @@ using MiPWinRTSDK.MiP.Models.MiP;
 using System.Drawing;
 using System.Text;
 
-
 namespace MiPWinRTSDK.MiP;
 
 class MiPRobot : MiPBase
@@ -22,39 +21,27 @@ class MiPRobot : MiPBase
         //q.Filters.Add(new Filter() { Name = "WowWee-MiP-27244" });
         q.Filters.Add(new Filter() { Name = "Miposaur-17704" });
         q.OptionalServices.Add("battery_service");
-        q.OptionalServices.Add("0000ffe5-0000-1000-8000-00805f9b34fb"); //Send service
-        q.OptionalServices.Add("0000ffe0-0000-1000-8000-00805f9b34fb"); //Recive service
+        q.OptionalServices.Add(WriteServiceGuid); //Write service
+        q.OptionalServices.Add(ReadServiceGuid); //Read service
 
-        ////query = { filters: [{ name: 'WowWee-MiP-27244' }], optionalServices: ['battery_service', '0000ffe5-0000-1000-8000-00805f9b34fb','0000ffe0-0000-1000-8000-00805f9b34fb'] };
         try
         {
             Device = await Navigator.RequestDeviceAsync(q);
             Console.WriteLine(Device);
 
-            var serviceGuid = "0000ffe0-0000-1000-8000-00805f9b34fb";
-            var characteristicGuid = "0000ffe4-0000-1000-8000-00805f9b34fb";
+            await Device.SetupNotifyAsync(ReadServiceGuid, ReadCharacteristicGuid);
+            Device.Notification += Value_Notification;
 
-            await Device.SetupNotifyAsync(serviceGuid, characteristicGuid);
-            Navigator.Notification += Value_Notification;
-
-            //CharacteristicsNotify = await Device.SetUpNotifyAsync(serviceGuid, characteristicGuid);
-            //CharacteristicsNotify.ValueChanged += CharacteristicsNotify_ValueChanged;
-            //}
-            //catch { }
             base.Connect();
         }
         catch { }
     }
 
-
     private void Value_Notification(object sender, CharacteristicEventArgs e)
     {
-
-
         var data = e.Value.ToArray();
         var hexstring = UTF8Encoding.UTF8.GetString(data, 0, data.Count());
         var bytes = StringToByteArray(hexstring);
-
 
         switch (bytes[0])
         {
@@ -170,7 +157,7 @@ class MiPRobot : MiPBase
     private LightEnum light3;
     private LightEnum light2;
     private LightEnum light1;
-        
+
     private byte weight;
     private byte batteryLevel;
     private StatusEnum status;
@@ -223,8 +210,6 @@ class MiPRobot : MiPBase
             RaisePropertyChanged();
         }
     }
-
-       
 
     public LightEnum Light1
     {
@@ -384,9 +369,6 @@ class MiPRobot : MiPBase
         await SendCommand(0x08, bytes);
     }
 
-       
-
-
     public async Task SetGameMode(GameModeEmum gamemode)
     {
         List<byte> bytes = new List<byte>();
@@ -394,18 +376,11 @@ class MiPRobot : MiPBase
         await SendCommand(0x76, bytes);
     }
 
-
-
     public async Task GetCurrentMIPGameMode()
     {
         List<byte> bytes = new List<byte>();
         await SendCommand(0x82, bytes);
     }
-
-
-
-
-
 
     public async Task MIPGetUp(GetUpEnum getUp)
     {
@@ -417,10 +392,9 @@ class MiPRobot : MiPBase
     public async Task RequestWeightUpdate()
     {
         List<byte> bytes = new List<byte>();
-            
+
         await SendCommand(0x81, bytes);
     }
-
 
     public async Task ReadOdometer()
     {
@@ -440,16 +414,13 @@ class MiPRobot : MiPBase
         await SendCommand(0x0C, bytes);
     }
 
-
     public async Task GetRadarMode()
     {
         List<byte> bytes = new List<byte>();
         await SendCommand(0x0D, bytes);
     }
 
-
-
-    public async Task SetMiPDetectionMode(byte idNumber,byte irTxPower)
+    public async Task SetMiPDetectionMode(byte idNumber, byte irTxPower)
     {
         List<byte> bytes = new List<byte>();
         bytes.Add((byte)idNumber);
@@ -466,7 +437,7 @@ class MiPRobot : MiPBase
     public async Task IRRemoteControlEnabled(bool enabled)
     {
         List<byte> bytes = new List<byte>();
-        bytes.Add((byte)(enabled?0x01:0x00));
+        bytes.Add((byte)(enabled ? 0x01 : 0x00));
         await SendCommand(0x10, bytes);
     }
 
@@ -476,15 +447,11 @@ class MiPRobot : MiPBase
         await SendCommand(0x11, bytes);
     }
 
-
-
     public async Task ForceBLEDisconnect()
     {
         List<byte> bytes = new List<byte>();
         await SendCommand(0xFC, bytes);
     }
-        
-
 
     public async Task GetSoftwareVersion()
     {
@@ -492,17 +459,12 @@ class MiPRobot : MiPBase
         await SendCommand(0x14, bytes);
     }
 
-
-    
-
-
     public async Task SetVolume(byte volume)
     {
         List<byte> bytes = new List<byte>();
         bytes.Add((byte)volume);
         await SendCommand(0x15, bytes);
     }
-     
 
     /// <summary>
     /// </summary>
@@ -513,7 +475,7 @@ class MiPRobot : MiPBase
     /// <param name="irdDataNumbers">Data numbers(1~32):e.g.BYTE5=0x08 means BYTE4 is useful. </param>
     /// <param name="irTxPower">IR Tx power(1~120)(About 1cm ~300cm)</param>
     /// <returns></returns>
-    public async Task SendIRDongleCode(byte byte1, byte byte2, byte byte3, byte byte4, byte irdDataNumbers,byte irTxPower)
+    public async Task SendIRDongleCode(byte byte1, byte byte2, byte byte3, byte byte4, byte irdDataNumbers, byte irTxPower)
     {
         List<byte> bytes = new List<byte>();
         bytes.Add((byte)byte1);
@@ -537,14 +499,11 @@ class MiPRobot : MiPBase
         await SendCommand(0x1f, bytes);
     }
 
-        
-
     public event EventHandler<GameModeEmum> GameModeRecievedEvent;
     private void OnGameModeRecieved(GameModeEmum gameMode)
     {
         GameModeRecievedEvent?.Invoke(this, gameMode);
     }
-
 
     public event EventHandler<IList<byte>> IRDongleCodeRecievedEvent;
     private void OnIRDongleCodeRecievedEvent(IList<byte> irDongleCode)
@@ -552,13 +511,11 @@ class MiPRobot : MiPBase
         IRDongleCodeRecievedEvent?.Invoke(this, irDongleCode);
     }
 
-
     public event EventHandler<MiPStatus> MiPStatusRecievedEvent;
     private void OnMiPStatusRecieved(MiPStatus status)
     {
         MiPStatusRecievedEvent?.Invoke(this, status);
     }
-
 
     public event EventHandler<byte> WeightUpdateRecievedEvent;
     private void OnWeightUpdateRecieved(byte weight)
@@ -566,23 +523,17 @@ class MiPRobot : MiPBase
         WeightUpdateRecievedEvent?.Invoke(this, weight);
     }
 
-
-
-
-
     public event EventHandler<HeadLED> HeadLEDRecievedEvent;
     private void OnHeadLEDRecieved(HeadLED headLED)
     {
         HeadLEDRecievedEvent?.Invoke(this, headLED);
     }
 
-
     public event EventHandler<GestureEnum> GestureRecievedEvent;
     private void OnGestureRecieved(GestureEnum gesture)
     {
         GestureRecievedEvent?.Invoke(this, gesture);
     }
-
 
     public event EventHandler<GestureRadarEnum> RadarModeRecievedEvent;
     private void OnRadarModeRecieved(GestureRadarEnum gestureRadarMode)
@@ -596,22 +547,17 @@ class MiPRobot : MiPBase
         RadarRecievedEvent?.Invoke(this, radar);
     }
 
-
     public event EventHandler<MiPDetectionStatus> MiPDetectionStatusRecievedEvent;
     private void OnMiPDetectionStatusRecieved(MiPDetectionStatus mipDetection)
     {
         MiPDetectionStatusRecievedEvent?.Invoke(this, mipDetection);
     }
 
-
     public event EventHandler<byte> MipDetectedRecievedEvent;
     private void OnMipDetectedRecieved(byte mipSettingsnumber)
     {
         MipDetectedRecievedEvent?.Invoke(this, mipSettingsnumber);
     }
-
-
-
 
     public event EventHandler<byte> IRControlStatusRecievedEvent;
     private void OnIRControlStatusRecieved(byte irControlStatus)
@@ -625,13 +571,11 @@ class MiPRobot : MiPBase
         SleepRecievedEvent?.Invoke(this, null);
     }
 
-
     public event EventHandler<EepromData> EePromDataRecievedEvent;
     private void OnEePromDataRecieved(EepromData eepromData)
     {
         EePromDataRecievedEvent?.Invoke(this, eepromData);
     }
-
 
     public event EventHandler<string> SoftwareVersionRecievedEvent;
     private void OnSoftwareVersionRecieved(string version)
@@ -639,13 +583,11 @@ class MiPRobot : MiPBase
         SoftwareVersionRecievedEvent?.Invoke(this, version);
     }
 
-
     public event EventHandler<MiPHardwareVersion> MiPHardwareVersionRecievedEvent;
     private void OnMiPHardwareVersionRecieved(MiPHardwareVersion hardwareVersion)
     {
         MiPHardwareVersionRecievedEvent?.Invoke(this, hardwareVersion);
     }
-
 
     public event EventHandler<byte> VolumeRecievedEvent;
     private void OnVolumeRecieved(byte volume)
@@ -653,13 +595,11 @@ class MiPRobot : MiPBase
         VolumeRecievedEvent?.Invoke(this, volume);
     }
 
-
     public event EventHandler<byte> ClapTimesRecievedEvent;
     private void OnClapTimesRecieved(byte claps)
     {
         ClapTimesRecievedEvent?.Invoke(this, claps);
     }
-
 
     public event EventHandler<ClapStatus> ClapStatusRecievedEvent;
     private void OnClapStatusRecieved(ClapStatus clapStatus)
@@ -774,7 +714,4 @@ class MiPRobot : MiPBase
 
     //}
 
-       
 }
-
-

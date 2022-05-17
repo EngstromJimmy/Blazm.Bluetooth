@@ -6,21 +6,19 @@ Works both Client-side and Server-side.
 
 ## Sponsors
 Thanks you to much to my sponsors!  
-![](https://raw.githubusercontent.com/EngstromJimmy/Blazm.Components/master/TelerikRect.png)
+![](https://raw.githubusercontent.com/EngstromJimmy/Blazm.Components/master/Display%20Ads%20Horizontal%20Leaderboard%20728x90%20TOP_RITM0148003.png)
 
 
-Telerik UI for Blazor – Increase productivity and cut cost in half! Use the Telerik truly native Blazor UI components to cover any app scenario. [Give it a try.](https://www.telerik.com/campaigns/blazor/free-trial-1?utm_source=jimmyengstrom&utm_medium=cpm&utm_campaign=blazor-trial-github-blazmblue-sponsored-message)
+Telerik UI for Blazor – Increase productivity and cut cost in half! Use the Telerik truly native Blazor UI components and high-performing grid to cover any app scenario. [Give it a try for free.](https://www.telerik.com/blazor-ui?utm_source=jimmyengstrom&utm_medium=cpm&utm_campaign=blazor-trial-github-blazmcomp-sponsored-message )
 
 
 ## Getting Started
 
 1. Add Nuget package Blazm.Bluetooth
 2. In Program.cs add ```builder.Services.AddBlazmBluetooth();```
-3. In your wwwrooot/index.html add
-```<script src="_content/Blazm.Bluetooth/JSInterop.js"></script>```
-4. In the component you want to connect to a device add the Blazm.Bluetooth Namespace
+3. In the component you want to connect to a device add the Blazm.Bluetooth Namespace
 ```@using Blazm.Bluetooth```
-5. Inject the IBluetoothNavigator (the instance that will communicate with your device)
+4. Inject the IBluetoothNavigator (the instance that will communicate with your device)
 ```@inject IBluetoothNavigator navigator```
 
 Now you are all setup now it is time to connect to a device.
@@ -35,7 +33,7 @@ To connect to an Andersson (SenSun) scale you need to do the following (check Pa
 Specify the ServiceId and CharacteristicId you want to communicate with.
 
 ``` cs
-var serviceid = "0000ffb0-0000-1000-8000-00805f9b34fb";
+var serviceId = "0000ffb0-0000-1000-8000-00805f9b34fb";
 var characteristicId = "0000ffb2-0000-1000-8000-00805f9b34fb";
 ```
 
@@ -43,7 +41,7 @@ Create a filter
 
 ``` cs
 var q = new RequestDeviceQuery();
-q.Filters.Add(new Filter() { Services = { serviceid } });
+q.Filters.Add(new Filter() { Services = { serviceId } });
 ```
 
 Request a device
@@ -56,7 +54,7 @@ This will return a device and it contains an id that you can use to read, write,
 Call the ```SetupNotifyAsync``` to get notifications when the value changes.
 
 ``` cs
-await navigator.SetupNotifyAsync(device.Id, serviceid, characteristics);
+await navigator.SetupNotifyAsync(device, serviceId, characteristicId);
 navigator.Notification += Value_Notification;
 ``` 
 
