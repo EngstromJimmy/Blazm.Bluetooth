@@ -6,9 +6,10 @@
 
 <button @onclick="ConnectAsync">Connect</button>
 
-<input type="number" @bind-value="command" />
+<button @onclick="()=>SendCommandAsync(25,2)">I'm Deadpool</button>
+<button @onclick="()=>SendCommandAsync(74,2)">X-Men</button>
+<button @onclick="()=>SendCommandAsync(41,0)">Relax</button>
 
-<button @onclick="SendCommandAsync">Command</button>
 
 <button disabled="@Timer.Enabled" @onclick="@(async ()=>{Timer.Start();})">Keep awake</button>
 
@@ -44,16 +45,17 @@
         Timer.Start();
     }
 
-    protected async Task SendCommandAsync()
+    protected async Task SendCommandAsync(byte command,byte section)
     {
         Timer.Stop();
-        var bytes = new byte[] { 0x17, 0x00,command, 0x00 };
+        var bytes = new byte[] { 0x17, 0x00,command, section };
         Console.WriteLine("Sent:" + string.Join(',', bytes.Select(h => "0x" + h.ToString("X2"))));
         await device.WriteValueAsync(serviceid, writecharacteristicid, bytes);
         await Task.Delay(2000);
         await AwakeAsync();
         StateHasChanged();
         Timer.Start();
+        command++;
     }
 
     protected async Task AwakeAsync()
