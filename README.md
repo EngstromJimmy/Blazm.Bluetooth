@@ -54,8 +54,8 @@ This will return a device and it contains an id that you can use to read, write,
 Call the ```SetupNotifyAsync``` to get notifications when the value changes.
 
 ``` cs
-await navigator.SetupNotifyAsync(device, serviceId, characteristicId);
-navigator.Notification += Value_Notification;
+await device.SetupNotifyAsync(serviceid, characteristics);
+device.Notification += Value_Notification;
 ``` 
 
 and add an event listener that parses the data from the notification.
@@ -74,10 +74,10 @@ private void Value_Notification(object sender, CharacteristicEventArgs e)
 The same thing goes for read and write
 ``` cs
 //Write
-await navigator.WriteValueAsync(device.Id, serviceId, characteristicId, bytearray);
+await device.WriteValueAsync(serviceid,characteristicsid,value);
 
 //Read
-var value = await navigator.ReadValueAsync(device.Id, serviceId, characteristicId);
+var bytes = await device.ReadValueAsync(serviceid, characteristicId);
 ```
 
 There is still many scenarios to implement but this should cover the basics.
